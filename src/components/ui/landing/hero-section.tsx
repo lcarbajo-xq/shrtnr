@@ -1,13 +1,25 @@
 'use client'
 
 import { urlSchema } from '@/lib/schemas/url'
-import { LinkIcon, LoaderCircle, TerminalSquare } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import {
+  ClipboardCopyIcon,
+  LinkIcon,
+  LoaderCircle,
+  TerminalSquare
+} from 'lucide-react'
+import { useState } from 'react'
 
 export function HeroSection() {
   const [url, setUrl] = useState('')
+  const [shortenedUrl, setShortenedUrl] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  const cleanUrls = () => {
+    setUrl('')
+    setShortenedUrl(null)
+    setError(null)
+  }
 
   const handleSubmit = async (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -34,11 +46,39 @@ export function HeroSection() {
       }
       const data = await response.json()
       console.log('Shortened URL:', data)
+      // Aquí podrías actualizar el estado para mostrar la URL acortada o redirigir al usuario
+      setShortenedUrl(data.shortenedUrl)
     } catch (err) {
       setError((err as Error).message)
     } finally {
       setLoading(false)
     }
+  }
+  if (shortenedUrl && !loading) {
+    // Si el usuario ha ingresado algo pero no es válido, mostrar error
+    // Mostrar la url devuelta si es existosa
+    return (
+      <div className='max-w-6xl mx-auto px-6 py-24 flex flex-col items-center text-center'>
+        <h1 className='font-mono text-5xl md:text-8xl font-bold tracking-tighter text-[#e8f0d0] leading-none mb-8'>
+          SUCCESS
+        </h1>
+
+        <p className='text-[#4a5c30] font-mono text-sm max-w-2xl mb-12 uppercase tracking-wide'>
+          Your URL has been shortened successfully!
+        </p>
+        {/* Añadir enlace para copiar la URL acortada */}
+        <button className='flex items-center gap-2 mb-6 text-primary font-mono text-lg font-bold uppercase tracking-wide hover:underline'>
+          {shortenedUrl}
+          {/* Poner el icono al lado del texto */}
+          <ClipboardCopyIcon className='text-lg text-primary' />
+        </button>
+        <button
+          onClick={cleanUrls}
+          className='bg-primary-container text-on-primary-container font-mono font-bold uppercase tracking-[0.2em] px-12 py-5 flex items-center justify-center gap-3 hover:bg-primary-fixed transition-all active:scale-[0.98] shadow-[0_0_20px_rgba(168,232,50,0.2)]'>
+          SHORTEN ANOTHER
+        </button>
+      </div>
+    )
   }
   if (error) {
     return (
@@ -50,7 +90,7 @@ export function HeroSection() {
           {error}
         </p>
         <button
-          onClick={() => setError(null)}
+          onClick={cleanUrls}
           className='bg-primary-container text-on-primary-container font-mono font-bold uppercase tracking-[0.2em] px-12 py-5 flex items-center justify-center gap-3 hover:bg-primary-fixed transition-all active:scale-[0.98] shadow-[0_0_20px_rgba(168,232,50,0.2)]'>
           TRY AGAIN
         </button>

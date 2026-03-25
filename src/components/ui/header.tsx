@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
-//[#0e0e0e]
+
 export function Header() {
   return (
     <header className='flex justify-between items-center w-full px-6 h-16 bg-[#0e0e0e]/70 border-b border-surface-container fixed top-0 right-0 z-50'>

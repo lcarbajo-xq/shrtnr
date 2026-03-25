@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState, useEffect, forwardRef } from 'react'
+import { useRef, useEffect, forwardRef } from 'react'
 import { Canvas, useFrame, useThree, ThreeEvent } from '@react-three/fiber'
 import { EffectComposer, wrapEffect } from '@react-three/postprocessing'
 import { Effect } from 'postprocessing'
@@ -132,11 +132,10 @@ void mainImage(in vec4 inputColor, in vec2 uv, out vec4 outputColor) {
   outputColor = color;
 }
 `
-
 class RetroEffectImpl extends Effect {
-  public uniforms: Map<string, THREE.Uniform<any>>
+  public uniforms: Map<string, THREE.Uniform<number>>
   constructor() {
-    const uniforms = new Map<string, THREE.Uniform<any>>([
+    const uniforms = new Map<string, THREE.Uniform<number>>([
       ['colorNum', new THREE.Uniform(4.0)],
       ['pixelSize', new THREE.Uniform(2.0)]
     ])
@@ -157,12 +156,13 @@ class RetroEffectImpl extends Effect {
   }
 }
 
+const WrappedRetroEffect = wrapEffect(RetroEffectImpl)
+
 const RetroEffect = forwardRef<
   RetroEffectImpl,
   { colorNum: number; pixelSize: number }
 >((props, ref) => {
   const { colorNum, pixelSize } = props
-  const WrappedRetroEffect = wrapEffect(RetroEffectImpl)
   return (
     <WrappedRetroEffect ref={ref} colorNum={colorNum} pixelSize={pixelSize} />
   )
@@ -171,7 +171,7 @@ const RetroEffect = forwardRef<
 RetroEffect.displayName = 'RetroEffect'
 
 interface WaveUniforms {
-  [key: string]: THREE.Uniform<any>
+  [key: string]: THREE.Uniform<number | THREE.Vector2 | THREE.Color>
   time: THREE.Uniform<number>
   resolution: THREE.Uniform<THREE.Vector2>
   waveSpeed: THREE.Uniform<number>
@@ -210,7 +210,7 @@ function DitheredWaves({
   const mouseRef = useRef(new THREE.Vector2())
   const { viewport, size, gl } = useThree()
 
-  const [waveUniforms] = useState<WaveUniforms>({
+  const waveUniformsRef = useRef<WaveUniforms>({
     time: new THREE.Uniform(0),
     resolution: new THREE.Uniform(new THREE.Vector2(0, 0)),
     waveSpeed: new THREE.Uniform(waveSpeed),
@@ -221,6 +221,7 @@ function DitheredWaves({
     enableMouseInteraction: new THREE.Uniform(enableMouseInteraction ? 1 : 0),
     mouseRadius: new THREE.Uniform(mouseRadius)
   })
+  const waveUniforms = waveUniformsRef.current
 
   useEffect(() => {
     const dpr = gl.getPixelRatio()

@@ -6,7 +6,7 @@ import {
   Inter
 } from 'next/font/google'
 import './globals.css'
-import Dither from '@/components/ui/landing/dither'
+import { DitherBackground } from '@/components/ui/landing/dither-background'
 
 const ibmPlexSans = IBM_Plex_Sans({
   variable: '--font-ibm-plex-sans',
@@ -44,23 +44,12 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang='en'
+      lang='es'
       className={`${ibmPlexSans.variable} ${ibmPlexMono.variable} ${spaceGrotesk.variable} ${inter.variable} h-full antialiased`}
       suppressHydrationWarning={true}>
       <body className='bg-transparent text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container w-full h-full'>
-        {/* <div className='fixed inset-0 dot-matrix pointer-events-none'></div>
-        <div className='scanline pointer-events-none'></div> */}
         <div className='fixed inset-0 pointer-events-none'>
-          <Dither
-            waveColor={[0.3, 0.5, 0.4]}
-            disableAnimation={false}
-            enableMouseInteraction
-            mouseRadius={0.3}
-            colorNum={4}
-            waveAmplitude={0.3}
-            waveFrequency={3}
-            waveSpeed={0.05}
-          />
+          <DitherBackground />
         </div>
 
         {children}
