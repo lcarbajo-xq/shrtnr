@@ -47,11 +47,10 @@ export default function RootLayout({
       lang='es'
       className={`${ibmPlexSans.variable} ${ibmPlexMono.variable} ${spaceGrotesk.variable} ${inter.variable} h-full antialiased`}
       suppressHydrationWarning={true}>
-      <body className='bg-transparent text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container w-full h-full'>
+      <body className='bg-background text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container w-full h-full'>
         <div className='fixed inset-0 pointer-events-none'>
           <DitherBackground />
         </div>
-
         {children}
       </body>
     </html>

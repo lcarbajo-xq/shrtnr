@@ -11,17 +11,17 @@ export function Header() {
         </div>
         <div className='hidden md:flex gap-8 items-center'>
           <Link
-            className='text-zinc-500 hover:text-[#aaeb35] hover:border-b-2 hover:border-[#aaeb35] font-mono uppercase text-xs tracking-widest py-1'
+            className='text-zinc-500 hover:text-[`#aaeb35`] hover:border-b-2 hover:border-[`#aaeb35`] font-mono hover:bg-surface-container-high transition-colors uppercase text-xs tracking-widest py-1 px-2'
             href='#'>
             Dashboard
           </Link>
           <Link
-            className='text-zinc-500 hover:text-[#aaeb35] hover:border-b-2 hover:border-[#aaeb35] font-mono hover:bg-surface-container-high transition-colors uppercase text-xs tracking-widest py-1 px-2'
+            className='text-zinc-500 hover:text-[`#aaeb35`] hover:border-b-2 hover:border-[`#aaeb35`] font-mono hover:bg-surface-container-high transition-colors uppercase text-xs tracking-widest py-1 px-2'
             href='#'>
             Analytics
           </Link>
           <Link
-            className='text-zinc-500 hover:text-[#aaeb35] hover:border-b-2 hover:border-[#aaeb35]  font-mono hover:bg-container-high transition-colors uppercase text-xs tracking-widest py-1 px-2'
+            className='text-zinc-500 hover:text-[`#aaeb35`] hover:border-b-2 hover:border-[`#aaeb35`] font-mono hover:bg-surface-container-high transition-colors uppercase text-xs tracking-widest py-1 px-2'
             href='#'>
             API Keys
           </Link>

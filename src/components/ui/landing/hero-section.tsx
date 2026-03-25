@@ -66,10 +66,10 @@ export function HeroSection() {
         <p className='text-[#4a5c30] font-mono text-sm max-w-2xl mb-12 uppercase tracking-wide'>
           Your URL has been shortened successfully!
         </p>
-        {/* Añadir enlace para copiar la URL acortada */}
-        <button className='flex items-center gap-2 mb-6 text-primary font-mono text-lg font-bold uppercase tracking-wide hover:underline'>
+        <button
+          className='flex items-center gap-2 mb-6 text-primary font-mono text-lg font-bold uppercase tracking-wide hover:underline'
+          onClick={() => navigator.clipboard.writeText(shortenedUrl)}>
           {shortenedUrl}
-          {/* Poner el icono al lado del texto */}
           <ClipboardCopyIcon className='text-lg text-primary' />
         </button>
         <button

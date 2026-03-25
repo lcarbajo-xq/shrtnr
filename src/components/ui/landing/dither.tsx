@@ -1,7 +1,7 @@
 'use client'
 
-import { useRef, useEffect, forwardRef } from 'react'
-import { Canvas, useFrame, useThree, ThreeEvent } from '@react-three/fiber'
+import { useRef, useEffect, forwardRef, useMemo, useState } from 'react'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { EffectComposer, wrapEffect } from '@react-three/postprocessing'
 import { Effect } from 'postprocessing'
 import * as THREE from 'three'
@@ -210,20 +210,47 @@ function DitheredWaves({
   const mouseRef = useRef(new THREE.Vector2())
   const { viewport, size, gl } = useThree()
 
-  const waveUniformsRef = useRef<WaveUniforms>({
-    time: new THREE.Uniform(0),
-    resolution: new THREE.Uniform(new THREE.Vector2(0, 0)),
-    waveSpeed: new THREE.Uniform(waveSpeed),
-    waveFrequency: new THREE.Uniform(waveFrequency),
-    waveAmplitude: new THREE.Uniform(waveAmplitude),
-    waveColor: new THREE.Uniform(new THREE.Color(...waveColor)),
-    mousePos: new THREE.Uniform(new THREE.Vector2(0, 0)),
-    enableMouseInteraction: new THREE.Uniform(enableMouseInteraction ? 1 : 0),
-    mouseRadius: new THREE.Uniform(mouseRadius)
+  const [initialResolution] = useState(() => {
+    const dpr = gl.getPixelRatio()
+
+    return new THREE.Vector2(
+      Math.floor(size.width * dpr),
+      Math.floor(size.height * dpr)
+    )
   })
-  const waveUniforms = waveUniformsRef.current
+
+  const [initialWaveSettings] = useState(() => ({
+    waveSpeed,
+    waveFrequency,
+    waveAmplitude,
+    waveColor: [...waveColor] as [number, number, number],
+    enableMouseInteraction,
+    mouseRadius
+  }))
+
+  const waveUniforms = useMemo<WaveUniforms>(
+    () => ({
+      time: new THREE.Uniform(0),
+      resolution: new THREE.Uniform(initialResolution.clone()),
+      waveSpeed: new THREE.Uniform(initialWaveSettings.waveSpeed),
+      waveFrequency: new THREE.Uniform(initialWaveSettings.waveFrequency),
+      waveAmplitude: new THREE.Uniform(initialWaveSettings.waveAmplitude),
+      waveColor: new THREE.Uniform(
+        new THREE.Color(...initialWaveSettings.waveColor)
+      ),
+      mousePos: new THREE.Uniform(new THREE.Vector2(0, 0)),
+      enableMouseInteraction: new THREE.Uniform(
+        initialWaveSettings.enableMouseInteraction ? 1 : 0
+      ),
+      mouseRadius: new THREE.Uniform(initialWaveSettings.mouseRadius)
+    }),
+    [initialResolution, initialWaveSettings]
+  )
+
+  const waveUniformsRef = useRef(waveUniforms)
 
   useEffect(() => {
+    const waveUniforms = waveUniformsRef.current
     const dpr = gl.getPixelRatio()
     const newWidth = Math.floor(size.width * dpr)
     const newHeight = Math.floor(size.height * dpr)
@@ -233,9 +260,33 @@ function DitheredWaves({
     }
   }, [size, gl, waveUniforms])
 
+  useEffect(() => {
+    if (!enableMouseInteraction) return
+
+    const handlePointerMove = (event: PointerEvent) => {
+      const rect = gl.domElement.getBoundingClientRect()
+
+      if (rect.width === 0 || rect.height === 0) {
+        return
+      }
+
+      const dpr = gl.getPixelRatio()
+      mouseRef.current.set(
+        (event.clientX - rect.left) * dpr,
+        (event.clientY - rect.top) * dpr
+      )
+    }
+
+    window.addEventListener('pointermove', handlePointerMove, { passive: true })
+
+    return () => {
+      window.removeEventListener('pointermove', handlePointerMove)
+    }
+  }, [enableMouseInteraction, gl])
+
   const prevColor = useRef([...waveColor])
   useFrame(({ clock }) => {
-    const u = waveUniforms
+    const u = waveUniformsRef.current
 
     if (!disableAnimation) {
       u.time.value = clock.getElapsedTime()
@@ -260,16 +311,6 @@ function DitheredWaves({
     }
   })
 
-  const handlePointerMove = (e: ThreeEvent<PointerEvent>) => {
-    if (!enableMouseInteraction) return
-    const rect = gl.domElement.getBoundingClientRect()
-    const dpr = gl.getPixelRatio()
-    mouseRef.current.set(
-      (e.clientX - rect.left) * dpr,
-      (e.clientY - rect.top) * dpr
-    )
-  }
-
   return (
     <>
       <mesh ref={mesh} scale={[viewport.width, viewport.height, 1]}>
@@ -284,15 +325,6 @@ function DitheredWaves({
       <EffectComposer>
         <RetroEffect colorNum={colorNum} pixelSize={pixelSize} />
       </EffectComposer>
-
-      <mesh
-        onPointerMove={handlePointerMove}
-        position={[0, 0, 0.01]}
-        scale={[viewport.width, viewport.height, 1]}
-        visible={false}>
-        <planeGeometry args={[1, 1]} />
-        <meshBasicMaterial transparent opacity={0} />
-      </mesh>
     </>
   )
 }
