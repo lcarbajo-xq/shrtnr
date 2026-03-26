@@ -207,8 +207,8 @@ function DitheredWaves({
   mouseRadius
 }: DitheredWavesProps) {
   const mesh = useRef<THREE.Mesh>(null)
-  const mouseRef = useRef(new THREE.Vector2())
-  const { viewport, size, gl } = useThree()
+  const mouseRef = useRef(new THREE.Vector2(-1e6, -1e6))
+  const { viewport, size, gl, invalidate } = useThree()
 
   const [initialResolution] = useState(() => {
     const dpr = gl.getPixelRatio()
@@ -238,7 +238,7 @@ function DitheredWaves({
       waveColor: new THREE.Uniform(
         new THREE.Color(...initialWaveSettings.waveColor)
       ),
-      mousePos: new THREE.Uniform(new THREE.Vector2(0, 0)),
+      mousePos: new THREE.Uniform(new THREE.Vector2(-1e6, -1e6)),
       enableMouseInteraction: new THREE.Uniform(
         initialWaveSettings.enableMouseInteraction ? 1 : 0
       ),
@@ -257,8 +257,9 @@ function DitheredWaves({
     const currentRes = waveUniforms.resolution.value
     if (currentRes.x !== newWidth || currentRes.y !== newHeight) {
       currentRes.set(newWidth, newHeight)
+      if (disableAnimation) invalidate()
     }
-  }, [size, gl, waveUniforms])
+  }, [size, gl, waveUniforms, disableAnimation, invalidate])
 
   useEffect(() => {
     if (!enableMouseInteraction) return
@@ -275,6 +276,7 @@ function DitheredWaves({
         (event.clientX - rect.left) * dpr,
         (event.clientY - rect.top) * dpr
       )
+      if (disableAnimation) invalidate()
     }
 
     window.addEventListener('pointermove', handlePointerMove, { passive: true })
@@ -282,7 +284,7 @@ function DitheredWaves({
     return () => {
       window.removeEventListener('pointermove', handlePointerMove)
     }
-  }, [enableMouseInteraction, gl])
+  }, [enableMouseInteraction, gl, disableAnimation, invalidate])
 
   const prevColor = useRef([...waveColor])
   useFrame(({ clock }) => {
@@ -356,6 +358,7 @@ export default function Dither({
     <Canvas
       className='w-full h-full relative'
       camera={{ position: [0, 0, 6] }}
+      frameloop={disableAnimation ? 'demand' : 'always'}
       dpr={1}
       gl={{ antialias: true, preserveDrawingBuffer: true }}>
       <DitheredWaves
