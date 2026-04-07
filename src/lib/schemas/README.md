@@ -1,20 +1,20 @@
-# Esquemas de Validación para API Routes
+# Esquemas de validación para API Routes
 
-Este directorio contiene los esquemas de validación Zod utilizados para validar datos de entrada en las API Routes.
+Este directorio contiene los esquemas de Zod que se usan para validar los datos de entrada en las API Routes.
 
-## Esquemas Disponibles
+## Esquemas disponibles
 
 ### `createShortLinkSchema`
 
-Valida los datos para crear un nuevo short link.
+Valida los datos para crear un nuevo enlace corto.
 
-**Campos:**
+**Campos**
 
-- `originalUrl` (string, requerido): URL válida que se va a acortar
-- `title` (string, opcional): Título del link (1-200 caracteres)
-- `customSlug` (string, opcional): Slug personalizado (alfanumérico, guiones, guiones bajos)
+- `originalUrl` (`string`, requerido): URL válida que se va a acortar.
+- `title` (`string`, opcional): título del enlace, con una longitud de 1 a 200 caracteres.
+- `customSlug` (`string`, opcional): slug personalizado con caracteres alfanuméricos, guiones y guiones bajos.
 
-**Ejemplo:**
+**Ejemplo**
 
 ```typescript
 import { createShortLinkSchema } from '@/lib/schemas/url'
@@ -30,16 +30,16 @@ const result = createShortLinkSchema.parse(data)
 
 ### `updateShortLinkSchema`
 
-Valida los datos para actualizar un short link existente.
+Valida los datos para actualizar un enlace corto existente.
 
-**Campos:**
+**Campos**
 
-- `originalUrl` (string, opcional): Nueva URL válida
-- `title` (string, opcional): Nuevo título (1-200 caracteres)
+- `originalUrl` (`string`, opcional): nueva URL válida.
+- `title` (`string`, opcional): nuevo título, con una longitud de 1 a 200 caracteres.
 
-**Nota:** Al menos uno de los campos debe estar presente.
+**Nota:** Debe enviarse al menos uno de estos campos.
 
-**Ejemplo:**
+**Ejemplo**
 
 ```typescript
 import { updateShortLinkSchema } from '@/lib/schemas/url'
@@ -53,60 +53,60 @@ const result = updateShortLinkSchema.parse(data)
 
 ### `slugSchema`
 
-Valida un slug individual.
+Valida un `slug` individual.
 
-**Reglas:**
+**Reglas**
 
-- No puede estar vacío
-- Máximo 50 caracteres
-- Solo letras, números, guiones y guiones bajos
-- No puede empezar o terminar con guión
+- No puede estar vacío.
+- Debe tener como máximo 50 caracteres.
+- Solo puede contener letras, números, guiones y guiones bajos.
+- No puede empezar ni terminar con un guion.
 
 ### `slugParamSchema`
 
-Validan parámetros de ruta que contienen slugs.
+Valida los parámetros de ruta que contienen un `slug`.
 
-## Función de Validación
+## Función de validación
 
 ### `validateData<T>(schema, data)`
 
-Función helper para validar datos y retornar respuestas HTTP formateadas.
+Utilidad para validar datos y devolver respuestas HTTP con un formato consistente.
 
-**Parámetros:**
+**Parámetros**
 
-- `schema`: Schema de Zod a usar para la validación
-- `data`: Datos a validar
+- `schema`: esquema de Zod que se usará para la validación.
+- `data`: datos que se van a validar.
 
-**Retorno:**
+**Retorno**
 
-- Éxito: `{ success: true, data: T }`
-- Error: `{ success: false, error: NextResponse }`
+- Éxito: `{ success: true, data: T }`.
+- Error: `{ success: false, error: NextResponse }`.
 
-**Ejemplo de uso en API Route:**
+**Ejemplo de uso en una ruta de la API**
 
 ```typescript
 import { createShortLinkSchema } from '@/lib/schemas/url'
 import { validateData } from '@/lib/validation'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 
 export async function POST(request: NextRequest) {
   const body = await request.json()
 
   const validation = validateData(createShortLinkSchema, body)
   if (!validation.success) {
-    return validation.error // Retorna 400 con errores formateados
+    return validation.error // Devuelve un 400 con errores formateados.
   }
 
-  // Usar validation.data con confianza (está tipado y validado)
+  // Puedes usar validation.data con seguridad porque ya está validado y tipado.
   const { originalUrl, title, customSlug } = validation.data
 
   // ... resto de la lógica
 }
 ```
 
-## Formato de Respuesta de Error
+## Formato de la respuesta de error
 
-Cuando la validación falla, se retorna una respuesta con status 400 y el siguiente formato:
+Cuando la validación falla, se devuelve una respuesta con código `400` y el siguiente formato:
 
 ```json
 {
@@ -124,10 +124,10 @@ Cuando la validación falla, se retorna una respuesta con status 400 y el siguie
 }
 ```
 
-## API Routes que Usan Validación
+## Rutas de la API que usan validación
 
-- `POST /api/links` - Usa `createShortLinkSchema`
-- `PATCH /api/links/[id]` - Usa `updateShortLinkSchema` y `slugParamSchema`
-- `GET /api/links/[id]` - Usa `slugParamSchema`
-- `DELETE /api/links/[id]` - Usa `slugParamSchema`
-- `GET /api/[slug]` - Usa `slugParamSchema`
+- `POST /api/links`: usa `createShortLinkSchema`.
+- `PATCH /api/links/[id]`: usa `updateShortLinkSchema` y `slugParamSchema`.
+- `GET /api/links/[id]`: usa `slugParamSchema`.
+- `DELETE /api/links/[id]`: usa `slugParamSchema`.
+- `GET /api/[slug]`: usa `slugParamSchema`.

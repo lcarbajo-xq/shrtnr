@@ -47,7 +47,6 @@ describe('GET /api/links', () => {
           originalUrl: 'https://example.com/one',
           slug: 'one-link',
           title: 'One Link',
-          shortUrl: 'http://localhost:3000/one-link',
           createdAt: '2026-03-30T10:00:00.000Z'
         })
       },
@@ -57,7 +56,6 @@ describe('GET /api/links', () => {
           originalUrl: 'https://example.com/two',
           slug: 'two-link',
           title: 'Two Link',
-          shortUrl: 'http://localhost:3000/two-link',
           createdAt: '2026-03-30T10:00:01.000Z'
         })
       }
@@ -76,7 +74,6 @@ describe('GET /api/links', () => {
         originalUrl: 'https://example.com/one',
         slug: 'one-link',
         title: 'One Link',
-        shortUrl: 'http://localhost:3000/one-link',
         createdAt: '2026-03-30T10:00:00.000Z'
       },
       {
@@ -84,7 +81,6 @@ describe('GET /api/links', () => {
         originalUrl: 'https://example.com/two',
         slug: 'two-link',
         title: 'Two Link',
-        shortUrl: 'http://localhost:3000/two-link',
         createdAt: '2026-03-30T10:00:01.000Z'
       }
     ])

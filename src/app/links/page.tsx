@@ -8,7 +8,6 @@ type LinkItem = {
   slug: string
   title?: string | null
   clicks: number
-  shortUrl: string
   createdAt: string
   updatedAt: string
 }
@@ -33,6 +32,10 @@ export default function LinksPage() {
 
   async function loadLinks() {
     const res = await fetch('/api/links')
+    if (!res.ok) {
+      console.error('Failed to load links', res.status)
+      return
+    }
     const data = await res.json()
     setLinks(data)
   }
@@ -86,9 +89,14 @@ export default function LinksPage() {
   }
 
   async function removeLink(id: string) {
-    await fetch(`/api/links/${id}`, {
+    const res = await fetch(`/api/links/${id}`, {
       method: 'DELETE'
     })
+
+    if (!res.ok) {
+      console.error('Failed to delete link', res.status)
+      return
+    }
 
     await loadLinks()
   }

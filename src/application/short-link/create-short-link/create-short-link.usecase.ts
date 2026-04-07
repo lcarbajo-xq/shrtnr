@@ -24,6 +24,8 @@ export class CreateShortLinkUseCase {
       id: crypto.randomUUID(),
       originalUrl,
       slug,
+      clicks: 0,
+      updatedAt: new Date(),
       title: input.title ?? 'Untitled',
       createdAt: new Date()
     })

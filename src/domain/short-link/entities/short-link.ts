@@ -5,6 +5,8 @@ type ShortLinkProperties = {
   id: string
   slug: Slug
   originalUrl: LinkUrl
+  clicks: number
+  updatedAt: Date
   createdAt: Date
   title: string | null
 }
@@ -12,6 +14,8 @@ type ShortLinkProperties = {
 export type ShortLinkPrimitives = {
   id: string
   slug: string
+  updatedAt: string
+  clicks: number
   originalUrl: string
   createdAt: string
   title: string
@@ -50,6 +54,8 @@ export class ShortLink {
       slug: this.slug.toString(),
       originalUrl: this.originalUrl.toString(),
       createdAt: this.createdAt.toISOString(),
+      updatedAt: this.props.updatedAt.toISOString(),
+      clicks: this.props.clicks,
       title: this.title ?? 'Untitled'
     }
   }

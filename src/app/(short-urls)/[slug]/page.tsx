@@ -7,15 +7,20 @@ export default async function ShortLinkPage({
 }) {
   const { slug } = await params
 
-  const response = await fetch(
-    `http://localhost:3000/api/links/${slug}/resolve`,
-    {
-      method: 'POST'
-    }
-  )
-  const data = await response.json()
+  const baseUrl = process.env.APP_BASE_URL || 'http://localhost:3000'
+  let data: { url?: string } = {}
+  try {
+    const response = await fetch(
+      `${baseUrl}/api/links/${encodeURIComponent(slug)}/resolve`,
+      {
+        method: 'POST',
+        cache: 'no-store'
+      }
+    )
 
-  if (!response.ok || !data.url) {
+    data = await response.json()
+    if (!data.url) notFound()
+  } catch {
     notFound()
   }
 
