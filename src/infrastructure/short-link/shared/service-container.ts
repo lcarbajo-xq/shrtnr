@@ -1,0 +1,52 @@
+import { GetAllLinksUseCase } from '@/application/short-link/get-all-link/get-all-links.usecase'
+import { InMemoryShortLinkRepository } from '../repositories/in-memory-short-link.repository'
+import { CreateShortLinkUseCase } from '@/application/short-link/create-short-link/create-short-link.usecase'
+import { SimpleSlugGenerator } from '../../services/slug-generator'
+import { GetShortLinkBySlugUseCase } from '@/application/short-link/get-link-by-slug/get-by-slug.usecase'
+import { UpdateShortLinkUseCase } from '@/application/short-link/update-short-link/update-short-link.usecase'
+import { DeleteShortLinkUseCase } from '@/application/short-link/delete-short-link/delete-short-link-usecase'
+import { ResolveShortLinkUrlUseCase } from '@/application/short-link/resolve-short-link-url/resolve-short-link-url.usecase'
+
+// Prevenir pérdida de datos en desarrollo con HMR (Hot Module Replacement)
+const globalForRepo = globalThis as unknown as {
+  shortLinkRepository: InMemoryShortLinkRepository | undefined
+}
+
+const shortLinkRepository =
+  globalForRepo.shortLinkRepository ?? new InMemoryShortLinkRepository()
+
+if (process.env.NODE_ENV !== 'production') {
+  globalForRepo.shortLinkRepository = shortLinkRepository
+}
+
+const baseUrl = 'http://localhost:3000'
+const slugGenerator = new SimpleSlugGenerator()
+
+export const serviceContainer = {
+  shortLink: {
+    getAll: new GetAllLinksUseCase({
+      shortLinkRepository,
+      baseUrl
+    }),
+    generate: new CreateShortLinkUseCase({
+      shortLinkRepository,
+      slugGenerator,
+      baseUrl
+    }),
+    getBySlug: new GetShortLinkBySlugUseCase({
+      shortLinkRepository
+    }),
+    update: new UpdateShortLinkUseCase({
+      shortLinkRepository
+    }),
+    delete: new DeleteShortLinkUseCase({
+      shortLinkRepository
+    }),
+    resolve: new ResolveShortLinkUrlUseCase({
+      shortLinkRepository,
+      baseUrl
+    })
+  }
+}
+
+export type ServiceContainer = typeof serviceContainer

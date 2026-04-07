@@ -1,0 +1,67 @@
+import {
+  ApplicationError,
+  ShortLinkNotFoundError,
+  UnableToGenerateUniqueSlugError
+} from '@/application/short-link/errors/application-error'
+import { DomainError } from '@/domain/short-link/errors/domain-error'
+import { NextResponse } from 'next/server'
+
+export function mapErrorToHttp(error: unknown) {
+  if (error instanceof ShortLinkNotFoundError) {
+    return NextResponse.json(
+      {
+        error: {
+          code: error.code,
+          message: error.message
+        }
+      },
+      { status: 404 }
+    )
+  }
+
+  if (error instanceof UnableToGenerateUniqueSlugError) {
+    return NextResponse.json(
+      {
+        error: {
+          code: error.code,
+          message: error.message
+        }
+      },
+      { status: 500 }
+    )
+  }
+
+  if (error instanceof DomainError) {
+    return NextResponse.json(
+      {
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: error.message
+        }
+      },
+      { status: 409 }
+    )
+  }
+
+  if (error instanceof ApplicationError) {
+    return NextResponse.json(
+      {
+        error: {
+          code: error.code,
+          message: error.message
+        }
+      },
+      { status: 400 }
+    )
+  }
+
+  return NextResponse.json(
+    {
+      error: {
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'An unexpected error occurred'
+      }
+    },
+    { status: 500 }
+  )
+}
