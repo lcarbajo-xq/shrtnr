@@ -3,21 +3,21 @@ import { shortLinkController } from '@/infrastructure/short-link/shared/dependen
 
 export async function GET(
   _: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   return await shortLinkController.getBySlug({ params })
 }
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   return await shortLinkController.update(request, { params })
 }
 
 export async function DELETE(
   _: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   return await shortLinkController.delete({ params })
 }

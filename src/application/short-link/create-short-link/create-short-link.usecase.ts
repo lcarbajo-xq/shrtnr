@@ -11,7 +11,6 @@ export class CreateShortLinkUseCase {
     private readonly deps: {
       shortLinkRepository: IShortLinkRepository
       slugGenerator: ISlugGenerator
-      baseUrl: string
     }
   ) {}
 

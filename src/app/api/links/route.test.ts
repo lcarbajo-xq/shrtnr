@@ -5,9 +5,7 @@ import {
   ShortLinkNotFoundError,
   UnableToGenerateUniqueSlugError
 } from '@/application/short-link/errors/application-error'
-import {
-  SlugAlreadyExistsError
-} from '@/domain/short-link/errors/domain-error'
+import { SlugAlreadyExistsError } from '@/domain/short-link/errors/domain-error'
 
 const generateExecuteMock = vi.hoisted(() => vi.fn())
 const getAllExecuteMock = vi.hoisted(() => vi.fn())
@@ -175,7 +173,7 @@ describe('POST /api/links', () => {
     const response = await POST(request)
     const data = await response.json()
 
-    expect(response.status).toBe(409)
+    expect(response.status).toBe(400)
     expect(data).toEqual({
       error: {
         code: 'VALIDATION_ERROR',
@@ -276,7 +274,8 @@ describe('POST /api/links', () => {
       errors: [
         {
           field: 'customSlug',
-          message: 'Slug can only contain letters, numbers, hyphens, and underscores'
+          message:
+            'Slug can only contain letters, numbers, hyphens, and underscores'
         }
       ]
     })

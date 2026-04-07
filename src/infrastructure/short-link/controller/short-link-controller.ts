@@ -2,7 +2,7 @@ import { mapErrorToHttp } from '@/presentation/short-link/mapErrorToHttp'
 import {
   createShortLinkSchema,
   updateShortLinkSchema,
-  idParamSchema
+  slugParamSchema
 } from '@/lib/schemas/url'
 import { validateData } from '@/lib/validation'
 import { NextRequest, NextResponse } from 'next/server'
@@ -12,11 +12,9 @@ export class ShortLinkController {
   constructor(private readonly serviceContainer: ServiceContainer) {}
 
   async generate(request: NextRequest): Promise<NextResponse> {
-    console.log('Received request to generate short link')
     try {
       const body = await request.json()
 
-      // Validar el cuerpo de la petición
       const validation = validateData(createShortLinkSchema, body)
       if (!validation.success) {
         return validation.error
@@ -52,19 +50,18 @@ export class ShortLinkController {
   async getBySlug({
     params
   }: {
-    params: Promise<{ id: string }>
+    params: Promise<{ slug: string }>
   }): Promise<NextResponse> {
     try {
       const resolvedParams = await params
 
-      // Validar parámetros de ruta
-      const validation = validateData(idParamSchema, resolvedParams)
+      const validation = validateData(slugParamSchema, resolvedParams)
       if (!validation.success) {
         return validation.error
       }
 
       const link = await this.serviceContainer.shortLink.getBySlug.execute(
-        validation.data.id
+        validation.data.slug
       )
 
       return NextResponse.json(link.toPrimitives(), { status: 200 })
@@ -77,18 +74,17 @@ export class ShortLinkController {
   async delete({
     params
   }: {
-    params: Promise<{ id: string }>
+    params: Promise<{ slug: string }>
   }): Promise<NextResponse> {
     try {
       const resolvedParams = await params
 
-      // Validar parámetros de ruta
-      const validation = validateData(idParamSchema, resolvedParams)
+      const validation = validateData(slugParamSchema, resolvedParams)
       if (!validation.success) {
         return validation.error
       }
 
-      await this.serviceContainer.shortLink.delete.execute(validation.data.id)
+      await this.serviceContainer.shortLink.delete.execute(validation.data.slug)
       return NextResponse.json({ status: 200 })
     } catch (error) {
       console.error('Error deleting short link:', error)
@@ -98,27 +94,25 @@ export class ShortLinkController {
 
   async update(
     request: NextRequest,
-    { params }: { params: Promise<{ id: string }> }
+    { params }: { params: Promise<{ slug: string }> }
   ): Promise<NextResponse> {
     try {
       const resolvedParams = await params
 
-      // Validar parámetros de ruta
-      const paramsValidation = validateData(idParamSchema, resolvedParams)
+      const paramsValidation = validateData(slugParamSchema, resolvedParams)
       if (!paramsValidation.success) {
         return paramsValidation.error
       }
 
       const body = await request.json()
 
-      // Validar cuerpo de la petición
       const bodyValidation = validateData(updateShortLinkSchema, body)
       if (!bodyValidation.success) {
         return bodyValidation.error
       }
 
       await this.serviceContainer.shortLink.update.execute({
-        slugStr: paramsValidation.data.id,
+        slugStr: paramsValidation.data.slug,
         originalUrl: bodyValidation.data.originalUrl,
         title: bodyValidation.data.title
       })
@@ -130,18 +124,17 @@ export class ShortLinkController {
     }
   }
 
-  async resolve({ params }: { params: Promise<{ id: string }> }) {
+  async resolve({ params }: { params: Promise<{ slug: string }> }) {
     try {
       const resolvedParams = await params
 
-      // Validar parámetros de ruta
-      const validation = validateData(idParamSchema, resolvedParams)
+      const validation = validateData(slugParamSchema, resolvedParams)
       if (!validation.success) {
         return validation.error
       }
 
       const url = await this.serviceContainer.shortLink.resolve.execute(
-        validation.data.id
+        validation.data.slug
       )
       return NextResponse.json({ url }, { status: 200 })
     } catch (error) {

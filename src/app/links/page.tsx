@@ -68,7 +68,7 @@ export default function LinksPage() {
         })
       }
 
-      //   setForm(initialForm)
+      setForm(initialForm)
       setEditingId(null)
       await loadLinks()
     } finally {

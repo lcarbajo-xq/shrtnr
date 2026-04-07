@@ -39,7 +39,7 @@ export function mapErrorToHttp(error: unknown) {
           message: error.message
         }
       },
-      { status: 409 }
+      { status: 400 }
     )
   }
 

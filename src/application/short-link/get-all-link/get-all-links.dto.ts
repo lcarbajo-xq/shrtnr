@@ -1,5 +1,7 @@
 export type GetAllLinksInput = {
   userId?: string
+  limit?: number
+  offset?: number
 }
 
 export type GetAllLinksOutput = {

@@ -1,5 +1,30 @@
 import { NextResponse } from 'next/server'
-import { ZodError, type ZodSchema, type ZodIssue } from 'zod'
+import { ZodError, type ZodSchema } from 'zod'
+
+/**
+ * Formatea un error de Zod en una respuesta HTTP
+ */
+function formatZodError(error: ZodError): NextResponse {
+  const errors = error.issues.map((err) => ({
+    field: err.path.join('.'),
+    message: err.message
+  }))
+
+  return NextResponse.json(
+    {
+      message: 'Validation error',
+      errors
+    },
+    { status: 400 }
+  )
+}
+
+/**
+ * Retorna una respuesta de error para datos de petición inválidos
+ */
+function invalidRequestResponse(): NextResponse {
+  return NextResponse.json({ message: 'Invalid request data' }, { status: 400 })
+}
 
 /**
  * Valida datos usando un schema de Zod y retorna un error formateado si falla
@@ -13,29 +38,15 @@ export function validateData<T>(
     return { success: true, data: validatedData }
   } catch (error) {
     if (error instanceof ZodError) {
-      const errors = error.issues.map((err: ZodIssue) => ({
-        field: err.path.join('.'),
-        message: err.message
-      }))
-
       return {
         success: false,
-        error: NextResponse.json(
-          {
-            message: 'Validation error',
-            errors
-          },
-          { status: 400 }
-        )
+        error: formatZodError(error)
       }
     }
 
     return {
       success: false,
-      error: NextResponse.json(
-        { message: 'Invalid request data' },
-        { status: 400 }
-      )
+      error: invalidRequestResponse()
     }
   }
 }
@@ -54,29 +65,15 @@ export async function validateDataAsync<T>(
     return { success: true, data: validatedData }
   } catch (error) {
     if (error instanceof ZodError) {
-      const errors = error.issues.map((err: ZodIssue) => ({
-        field: err.path.join('.'),
-        message: err.message
-      }))
-
       return {
         success: false,
-        error: NextResponse.json(
-          {
-            message: 'Validation error',
-            errors
-          },
-          { status: 400 }
-        )
+        error: formatZodError(error)
       }
     }
 
     return {
       success: false,
-      error: NextResponse.json(
-        { message: 'Invalid request data' },
-        { status: 400 }
-      )
+      error: invalidRequestResponse()
     }
   }
 }

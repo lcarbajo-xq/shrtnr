@@ -11,7 +11,6 @@ export async function GET(
   try {
     const resolvedParams = await params
 
-    // Validar parámetros de ruta
     const validation = validateData(slugParamSchema, resolvedParams)
     if (!validation.success) {
       return validation.error

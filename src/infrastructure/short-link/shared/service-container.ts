@@ -19,19 +19,16 @@ if (process.env.NODE_ENV !== 'production') {
   globalForRepo.shortLinkRepository = shortLinkRepository
 }
 
-const baseUrl = 'http://localhost:3000'
 const slugGenerator = new SimpleSlugGenerator()
 
 export const serviceContainer = {
   shortLink: {
     getAll: new GetAllLinksUseCase({
-      shortLinkRepository,
-      baseUrl
+      shortLinkRepository
     }),
     generate: new CreateShortLinkUseCase({
       shortLinkRepository,
-      slugGenerator,
-      baseUrl
+      slugGenerator
     }),
     getBySlug: new GetShortLinkBySlugUseCase({
       shortLinkRepository
@@ -43,8 +40,7 @@ export const serviceContainer = {
       shortLinkRepository
     }),
     resolve: new ResolveShortLinkUrlUseCase({
-      shortLinkRepository,
-      baseUrl
+      shortLinkRepository
     })
   }
 }

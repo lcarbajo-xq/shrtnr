@@ -11,8 +11,19 @@ export class InMemoryShortLinkRepository implements IShortLinkRepository {
     return await Promise.resolve(this.items.get(slug.toString()) ?? null)
   }
 
-  async findAll(): Promise<ShortLink[]> {
-    return await Promise.resolve(Array.from(this.items.values()))
+  async findAll({
+    limit = 10,
+    offset = 0
+  }: {
+    limit?: number
+    offset?: number
+  }): Promise<ShortLink[]> {
+    return await Promise.resolve(
+      Array.from(this.items.values()).slice(
+        offset ?? 0,
+        limit ? (offset ?? 0) + limit : undefined
+      )
+    )
   }
 
   async save(shortLink: ShortLink): Promise<void> {
@@ -29,11 +40,12 @@ export class InMemoryShortLinkRepository implements IShortLinkRepository {
     this.items.clear()
   }
 
-  getAll(): Promise<ShortLink[]> {
-    return Promise.resolve(Array.from(this.items.values()))
-  }
-
   async update(shortLink: ShortLink): Promise<void> {
+    const exists = this.items.has(shortLink.slug.toString())
+
+    if (!exists) {
+      throw new ShortLinkNotFoundError(shortLink.slug.toString())
+    }
     await Promise.resolve(this.items.set(shortLink.slug.toString(), shortLink))
     return
   }
