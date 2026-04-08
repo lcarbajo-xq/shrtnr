@@ -322,11 +322,11 @@ describe('POST /api/links', () => {
     const response = await POST(request)
     const data = await response.json()
 
-    expect(response.status).toBe(500)
+    expect(response.status).toBe(400)
     expect(data).toEqual({
       error: {
-        code: 'INTERNAL_SERVER_ERROR',
-        message: 'An unexpected error occurred'
+        code: 'INVALID_JSON',
+        message: 'The request body contains invalid JSON'
       }
     })
   })
