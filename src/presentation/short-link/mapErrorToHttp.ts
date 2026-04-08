@@ -13,7 +13,7 @@ export function mapErrorToHttp(error: unknown) {
       {
         error: {
           code: 'DATABASE_ERROR',
-          message: 'Internal error occured while accessing the database'
+          message: 'Internal error occurred while accessing the database'
         }
       },
       { status: 500 }

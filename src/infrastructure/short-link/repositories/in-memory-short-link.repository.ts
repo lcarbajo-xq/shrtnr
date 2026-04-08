@@ -2,7 +2,6 @@ import { ShortLinkNotFoundError } from '@/application/short-link/errors/applicat
 import { ShortLink } from '@/domain/short-link/entities/short-link'
 import { SlugAlreadyExistsError } from '@/domain/short-link/errors/domain-error'
 import { IShortLinkRepository } from '@/domain/short-link/repositories/short-link-repository.interface'
-import { LinkUrl } from '@/domain/short-link/value-objects/link-url'
 import { Slug } from '@/domain/short-link/value-objects/slug'
 
 export class InMemoryShortLinkRepository implements IShortLinkRepository {
@@ -61,18 +60,8 @@ export class InMemoryShortLinkRepository implements IShortLinkRepository {
     if (!shortLink) {
       return null
     }
-    // Incrementar el contador de clicks
-    const updatedShortLink = ShortLink.create({
-      id: shortLink.id,
-      slug: shortLink.slug,
-      originalUrl: shortLink.originalUrl,
-      title: shortLink.title,
-      updatedAt: new Date(),
-      createdAt: shortLink.createdAt,
-      clicks: shortLink.clicks + 1
-    })
-
-    await this.update(updatedShortLink)
-    return updatedShortLink
+    shortLink.incrementClicks()
+    await this.update(shortLink)
+    return shortLink
   }
 }

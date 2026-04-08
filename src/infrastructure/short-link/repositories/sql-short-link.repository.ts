@@ -10,16 +10,24 @@ import { SQLiteOperationError } from '../errors'
 
 export class SQLShortLinkRepository implements IShortLinkRepository {
   async save(shortLink: ShortLink): Promise<void> {
-    const shortLinkToPrimitives = shortLink.toPrimitives()
-    await db
-      .insert(linksTable)
-      .values({
-        ...shortLinkToPrimitives,
-        clicks: shortLinkToPrimitives.clicks.toString(),
-        createdAt: new Date(shortLinkToPrimitives.createdAt).toISOString(),
-        updatedAt: new Date(shortLinkToPrimitives.createdAt).toISOString()
-      })
-      .run()
+    try {
+      const shortLinkToPrimitives = shortLink.toPrimitives()
+      await db
+        .insert(linksTable)
+        .values({
+          ...shortLinkToPrimitives,
+          clicks: shortLinkToPrimitives.clicks,
+          createdAt: new Date(shortLinkToPrimitives.createdAt).toISOString(),
+          updatedAt: new Date(shortLinkToPrimitives.updatedAt).toISOString()
+        })
+        .run()
+    } catch (error) {
+      console.error('Error saving short link:', error)
+      throw new SQLiteOperationError(
+        `Error saving register ${shortLink.slug.toString()}`,
+        error
+      )
+    }
   }
 
   async delete(slug: Slug): Promise<boolean> {
@@ -29,7 +37,6 @@ export class SQLShortLinkRepository implements IShortLinkRepository {
         .where(eq(linksTable.slug, slug.toString()))
         .returning()
         .execute()
-      console.log('Delete result:', result)
       return result.length > 0
     } catch (error) {
       console.error('Error deleting short link:', error)
@@ -41,90 +48,119 @@ export class SQLShortLinkRepository implements IShortLinkRepository {
   }
 
   async findBySlug(slug: Slug): Promise<ShortLink | null> {
-    const resutl = await db
-      .select()
-      .from(linksTable)
-      .where(eq(linksTable.slug, slug.toString()))
-      .limit(1)
-      .execute()
-    if (resutl.length === 0) {
-      return null
-    }
-    const linkRow = resutl[0]
-    const shortLink = ShortLink.create({
-      id: linkRow.slug,
-      slug: Slug.create(linkRow.slug),
-      originalUrl: LinkUrl.create(linkRow.originalUrl),
-      title: linkRow.title,
-      updatedAt: new Date(linkRow.updatedAt),
-      createdAt: new Date(linkRow.createdAt),
-      clicks: parseInt(linkRow.clicks, 10)
-    })
-    return shortLink
-  }
-
-  async findAll(): Promise<ShortLink[]> {
-    const result = await db.select().from(linksTable).execute()
-    return result.map((linkRow) =>
-      ShortLink.create({
-        id: linkRow.slug,
-        slug: Slug.create(linkRow.slug),
-        originalUrl: LinkUrl.create(linkRow.originalUrl),
-        title: linkRow.title,
-        updatedAt: new Date(linkRow.updatedAt),
-        createdAt: new Date(linkRow.createdAt),
-        clicks: parseInt(linkRow.clicks, 10)
-      })
-    )
-  }
-
-  async update(shortLink: ShortLink): Promise<void> {
-    await db
-      .update(linksTable)
-      .set({
-        originalUrl: shortLink.originalUrl.toString(),
-        title: shortLink.title,
-        updatedAt: new Date().toISOString(),
-        clicks: shortLink.clicks.toString()
-      })
-      .where(eq(linksTable.slug, shortLink.slug.toString()))
-      .run()
-  }
-
-  async resolve(slug: Slug): Promise<ShortLink | null> {
-    const transaction = await db.transaction(async (tx) => {
-      const shortLink = await tx
+    try {
+      const resutl = await db
         .select()
         .from(linksTable)
         .where(eq(linksTable.slug, slug.toString()))
         .limit(1)
         .execute()
-
-      if (shortLink.length === 0) {
-        throw new ShortLinkNotFoundError('Short link not found')
+      if (resutl.length === 0) {
+        return null
       }
-      const linkRow = shortLink[0]
-      const link = ShortLink.create({
+      const linkRow = resutl[0]
+      const shortLink = ShortLink.create({
         id: linkRow.slug,
         slug: Slug.create(linkRow.slug),
         originalUrl: LinkUrl.create(linkRow.originalUrl),
         title: linkRow.title,
         updatedAt: new Date(linkRow.updatedAt),
         createdAt: new Date(linkRow.createdAt),
-        clicks: parseInt(linkRow.clicks, 10)
+        clicks: linkRow.clicks
       })
-      link.incrementClicks()
-      const newClicks = link.clicks
-      // Incrementar el contador de clicks
-      await tx
+      return shortLink
+    } catch (error) {
+      console.error('Error finding short link by slug:', error)
+      throw new SQLiteOperationError(
+        `Error finding register ${slug.toString()}`,
+        error
+      )
+    }
+  }
+
+  async findAll(): Promise<ShortLink[]> {
+    try {
+      const result = await db.select().from(linksTable).execute()
+      return result.map((linkRow) =>
+        ShortLink.create({
+          id: linkRow.slug,
+          slug: Slug.create(linkRow.slug),
+          originalUrl: LinkUrl.create(linkRow.originalUrl),
+          title: linkRow.title,
+          updatedAt: new Date(linkRow.updatedAt),
+          createdAt: new Date(linkRow.createdAt),
+          clicks: linkRow.clicks
+        })
+      )
+    } catch (error) {
+      console.error('Error finding all short links:', error)
+      throw new SQLiteOperationError('Error finding all short links', error)
+    }
+  }
+
+  async update(shortLink: ShortLink): Promise<void> {
+    try {
+      await db
         .update(linksTable)
         .set({
-          clicks: newClicks.toString()
+          originalUrl: shortLink.originalUrl.toString(),
+          title: shortLink.title,
+          updatedAt: new Date().toISOString(),
+          clicks: shortLink.clicks
         })
-        .where(eq(linksTable.slug, link.slug.toString()))
+        .where(eq(linksTable.slug, shortLink.slug.toString()))
         .run()
-      return link
-    })
-    return transaction
+    } catch (error) {
+      console.error('Error updating short link:', error)
+      throw new SQLiteOperationError(
+        `Error updating register ${shortLink.slug.toString()}`,
+        error
+      )
+    }
+  }
+
+  async resolve(slug: Slug): Promise<ShortLink | null> {
+    try {
+      const transaction = await db.transaction(async (tx) => {
+        const shortLink = await tx
+          .select()
+          .from(linksTable)
+          .where(eq(linksTable.slug, slug.toString()))
+          .limit(1)
+          .execute()
+
+        if (shortLink.length === 0) {
+          return null
+        }
+        const linkRow = shortLink[0]
+        const link = ShortLink.create({
+          id: linkRow.slug,
+          slug: Slug.create(linkRow.slug),
+          originalUrl: LinkUrl.create(linkRow.originalUrl),
+          title: linkRow.title,
+          updatedAt: new Date(linkRow.updatedAt),
+          createdAt: new Date(linkRow.createdAt),
+          clicks: linkRow.clicks
+        })
+        link.incrementClicks()
+        const newClicks = link.clicks
+        // Incrementar el contador de clicks
+        await tx
+          .update(linksTable)
+          .set({
+            clicks: newClicks
+          })
+          .where(eq(linksTable.slug, link.slug.toString()))
+          .run()
+        return link
+      })
+      return transaction
+    } catch (error) {
+      console.error('Error resolving short link:', error)
+      throw new SQLiteOperationError(
+        `Error resolving register ${slug.toString()}`,
+        error
+      )
+    }
   }
 }

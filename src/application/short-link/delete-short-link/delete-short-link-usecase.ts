@@ -11,7 +11,7 @@ export class DeleteShortLinkUseCase {
     const slug = Slug.create(slugStr)
 
     const wasDeleted = await this.deps.shortLinkRepository.delete(slug)
-    if (!wasDeleted) {
+    if (wasDeleted === false) {
       throw new ShortLinkNotFoundError(
         `Short link with slug "${slugStr}" not found`
       )

@@ -14,6 +14,6 @@ export interface IShortLinkRepository {
   }): Promise<ShortLink[]>
   save(shortLink: ShortLink): Promise<void>
   update(shortLink: ShortLink): Promise<void>
-  delete(slug: Slug): Promise<void | boolean>
+  delete(slug: Slug): Promise<boolean>
   resolve(slug: Slug): Promise<ShortLink | null>
 }

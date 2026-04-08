@@ -7,17 +7,6 @@ import { DeleteShortLinkUseCase } from '@/application/short-link/delete-short-li
 import { ResolveShortLinkUrlUseCase } from '@/application/short-link/resolve-short-link-url/resolve-short-link-url.usecase'
 import { SQLShortLinkRepository } from '../repositories/sql-short-link.repository'
 
-// const globalForRepo = globalThis as unknown as {
-//   shortLinkRepository: SQLShortLinkRepository | undefined
-// }
-
-// const shortLinkRepository =
-//   globalForRepo.shortLinkRepository ?? new SQLShortLinkRepository()
-
-// if (process.env.NODE_ENV !== 'production') {
-//   globalForRepo.shortLinkRepository = shortLinkRepository
-// }
-
 const shortLinkRepository = new SQLShortLinkRepository()
 const slugGenerator = new SimpleSlugGenerator()
 
