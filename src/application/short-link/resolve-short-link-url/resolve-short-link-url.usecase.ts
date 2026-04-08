@@ -10,12 +10,10 @@ export class ResolveShortLinkUrlUseCase {
   ) {}
   async execute(slugStr: string): Promise<string> {
     const slug = Slug.create(slugStr)
-
-    const shortLink = await this.deps.shortLinkRepository.findBySlug(slug)
-    if (!shortLink) {
-      throw new ShortLinkNotFoundError('Short link not found')
+    const url = await this.deps.shortLinkRepository.resolve(slug)
+    if (!url) {
+      throw new ShortLinkNotFoundError(slugStr)
     }
-
-    return shortLink.originalUrl.toString()
+    return url.originalUrl.toString()
   }
 }

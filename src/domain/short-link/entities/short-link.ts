@@ -63,4 +63,16 @@ export class ShortLink {
       title: this.title
     }
   }
+
+  toDomain(props: Partial<ShortLinkProperties>): ShortLink {
+    return ShortLink.create({
+      ...this.props,
+      ...props
+    })
+  }
+
+  incrementClicks() {
+    this.props.clicks += 1
+    this.props.updatedAt = new Date()
+  }
 }
