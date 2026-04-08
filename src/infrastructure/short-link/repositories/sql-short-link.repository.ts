@@ -1,4 +1,3 @@
-import { ShortLinkNotFoundError } from '@/application/short-link/errors/application-error'
 import { ShortLink } from '@/domain/short-link/entities/short-link'
 import { IShortLinkRepository } from '@/domain/short-link/repositories/short-link-repository.interface'
 import { LinkUrl } from '@/domain/short-link/value-objects/link-url'
@@ -105,7 +104,7 @@ export class SQLShortLinkRepository implements IShortLinkRepository {
         .set({
           originalUrl: shortLink.originalUrl.toString(),
           title: shortLink.title,
-          updatedAt: new Date().toISOString(),
+          updatedAt: shortLink.updatedAt.toISOString(),
           clicks: shortLink.clicks
         })
         .where(eq(linksTable.slug, shortLink.slug.toString()))

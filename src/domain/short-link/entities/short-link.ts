@@ -41,6 +41,10 @@ export class ShortLink {
     return this.props.clicks
   }
 
+  get updatedAt() {
+    return this.props.updatedAt
+  }
+
   get slug() {
     return this.props.slug
   }
