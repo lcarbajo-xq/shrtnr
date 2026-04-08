@@ -1,6 +1,9 @@
 import { IShortLinkRepository } from '@/domain/short-link/repositories/short-link-repository.interface'
 import { ISlugGenerator } from '@/domain/services/slug-generator.interface'
-import { CreateShortLinkInput } from './create-short-link.dto'
+import {
+  CreateShortLinkInput,
+  CreateShortLinkOutput
+} from './create-short-link.dto'
 import { Slug } from '@/domain/short-link/value-objects/slug'
 import { LinkUrl } from '@/domain/short-link/value-objects/link-url'
 import { ShortLink } from '@/domain/short-link/entities/short-link'
@@ -14,8 +17,9 @@ export class CreateShortLinkUseCase {
     }
   ) {}
 
-  async execute(input: CreateShortLinkInput): Promise<void> {
+  async execute(input: CreateShortLinkInput): Promise<CreateShortLinkOutput> {
     const originalUrl = LinkUrl.create(input.originalUrl)
+
     const slug = input.customSlug
       ? Slug.create(input.customSlug)
       : await this.generateUniqueSlug()
@@ -26,10 +30,11 @@ export class CreateShortLinkUseCase {
       slug,
       clicks: 0,
       updatedAt: new Date(),
-      title: input.title ?? 'Untitled',
+      title: input.title ?? null,
       createdAt: new Date()
     })
     await this.deps.shortLinkRepository.save(shortLink)
+    return shortLink.toPrimitives()
   }
 
   private async generateUniqueSlug(): Promise<Slug> {

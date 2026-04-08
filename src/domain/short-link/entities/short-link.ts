@@ -18,7 +18,7 @@ export type ShortLinkPrimitives = {
   clicks: number
   originalUrl: string
   createdAt: string
-  title: string
+  title: string | null
 }
 
 export class ShortLink {
@@ -60,7 +60,7 @@ export class ShortLink {
       createdAt: this.createdAt.toISOString(),
       updatedAt: this.props.updatedAt.toISOString(),
       clicks: this.props.clicks,
-      title: this.title ?? 'Untitled'
+      title: this.title
     }
   }
 }

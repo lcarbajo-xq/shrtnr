@@ -108,7 +108,15 @@ describe('POST /api/links', () => {
   })
 
   test('creates a short link and returns status 201', async () => {
-    generateExecuteMock.mockResolvedValue(undefined)
+    generateExecuteMock.mockResolvedValue({
+      id: 'e78b81f3-6588-4054-96f2-b2bb7ba90683',
+      slug: 'qzwu76',
+      originalUrl: 'https://www.example.com/',
+      createdAt: '2026-04-08T09:43:10.907Z',
+      updatedAt: '2026-04-08T09:43:10.907Z',
+      clicks: 0,
+      title: 'Example Website 2'
+    })
 
     const request = new NextRequest('http://localhost:3000/api/links', {
       method: 'POST',
@@ -129,7 +137,17 @@ describe('POST /api/links', () => {
       customSlug: 'my-post',
       title: 'My Post'
     })
-    expect(data).toEqual({ status: 201 })
+    expect(data).toEqual({
+      link: {
+        id: 'e78b81f3-6588-4054-96f2-b2bb7ba90683',
+        slug: 'qzwu76',
+        originalUrl: 'https://www.example.com/',
+        createdAt: '2026-04-08T09:43:10.907Z',
+        updatedAt: '2026-04-08T09:43:10.907Z',
+        clicks: 0,
+        title: 'Example Website 2'
+      }
+    })
   })
 
   test('creates a short link without optional fields', async () => {

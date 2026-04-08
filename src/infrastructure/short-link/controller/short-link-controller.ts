@@ -27,19 +27,17 @@ export class ShortLinkController {
   async generate(request: NextRequest): Promise<NextResponse> {
     try {
       const body = await request.json()
-
       const validation = validateData(createShortLinkSchema, body)
       if (!validation.success) {
         return validation.error
       }
 
-      await this.serviceContainer.shortLink.generate.execute({
+      const link = await this.serviceContainer.shortLink.generate.execute({
         originalUrl: validation.data.originalUrl,
         title: validation.data.title,
         customSlug: validation.data.customSlug
       })
-
-      return NextResponse.json({ status: 201 }, { status: 201 })
+      return NextResponse.json({ link }, { status: 201 })
     } catch (error) {
       const response = mapErrorToHttp(error)
       if (response.status >= 500) {
@@ -101,7 +99,7 @@ export class ShortLinkController {
       }
 
       await this.serviceContainer.shortLink.delete.execute(slug)
-      return NextResponse.json({ status: 200 })
+      return NextResponse.json({ status: 200 }, { status: 200 })
     } catch (error) {
       const response = mapErrorToHttp(error)
       if (response.status >= 500) {
@@ -134,7 +132,7 @@ export class ShortLinkController {
         title: bodyValidation.data.title
       })
 
-      return NextResponse.json({ status: 200 })
+      return NextResponse.json({ status: 200 }, { status: 200 })
     } catch (error) {
       const response = mapErrorToHttp(error)
       if (response.status >= 500) {
