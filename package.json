@@ -7,7 +7,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "test": "vitest",
+    "lint": "eslint",
+    "dev:db:generate": "npx drizzle-kit generate",
+    "dev:db:migrate": "npx drizzle-kit migrate",
+    "dev:db:seed": "pnpm tsx src/lib/db/seed.ts"
   },
   "dependencies": {
     "@libsql/client": "^0.17.2",
@@ -34,6 +38,7 @@
     "eslint-config-next": "16.2.1",
     "tailwindcss": "^4",
     "tsx": "^4.21.0",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.2"
   }
 }
