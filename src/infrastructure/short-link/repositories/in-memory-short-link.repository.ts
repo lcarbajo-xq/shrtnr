@@ -12,17 +12,17 @@ export class InMemoryShortLinkRepository implements IShortLinkRepository {
   }
 
   async findAll({
+    userId,
     limit = 10,
     offset = 0
   }: {
+    userId?: string
     limit?: number
     offset?: number
   }): Promise<ShortLink[]> {
+    // TODO: Filter by userId when multi-user support is adde
     return await Promise.resolve(
-      Array.from(this.items.values()).slice(
-        offset ?? 0,
-        limit ? (offset ?? 0) + limit : undefined
-      )
+      Array.from(this.items.values()).slice(offset, offset + limit)
     )
   }
 

@@ -3,7 +3,7 @@ import { NextRequest } from 'next/server'
 
 export async function POST(
   _: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   return await shortLinkController.resolve({ params })
 }

@@ -19,15 +19,12 @@ const slugRegex = /^[a-zA-Z0-9_-]+$/
 
 export const slugSchema = z
   .string()
-  .min(1, 'Slug cannot be empty')
-  .max(50, 'Slug must be 50 characters or less')
+  .min(4, 'Slug must be at least 4 characters long')
+  .max(32, 'Slug must be 32 characters or less')
   .regex(
     slugRegex,
     'Slug can only contain letters, numbers, hyphens, and underscores'
   )
-  .refine((slug) => !slug.startsWith('-') && !slug.endsWith('-'), {
-    message: 'Slug cannot start or end with a hyphen'
-  })
 
 // Schema para crear un short link (POST /api/links)
 export const createShortLinkSchema = z.object({

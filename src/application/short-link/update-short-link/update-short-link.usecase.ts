@@ -3,7 +3,6 @@ import { IShortLinkRepository } from '@/domain/short-link/repositories/short-lin
 import { LinkUrl } from '@/domain/short-link/value-objects/link-url'
 import { Slug } from '@/domain/short-link/value-objects/slug'
 import { ShortLinkNotFoundError } from '../errors/application-error'
-import { sl } from 'zod/locales'
 
 export class UpdateShortLinkUseCase {
   constructor(
@@ -24,6 +23,8 @@ export class UpdateShortLinkUseCase {
 
     const shortLinkToUpdate = ShortLink.create({
       createdAt: exists.createdAt,
+      clicks: exists.clicks,
+      updatedAt: new Date(),
       id: exists.id,
       slug,
       title: input.title ?? exists.title,

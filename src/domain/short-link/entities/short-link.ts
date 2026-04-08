@@ -32,6 +32,10 @@ export class ShortLink {
     return this.props.id
   }
 
+  get clicks() {
+    return this.props.clicks
+  }
+
   get slug() {
     return this.props.slug
   }
