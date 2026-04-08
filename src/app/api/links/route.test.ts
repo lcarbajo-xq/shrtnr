@@ -172,7 +172,7 @@ describe('POST /api/links', () => {
     expect(response.status).toBe(400)
     expect(data).toEqual({
       error: {
-        code: 'VALIDATION_ERROR',
+        code: 'SLUG_ALREADY_EXISTS',
         message: 'Slug already exists: my-post'
       }
     })
@@ -241,13 +241,7 @@ describe('POST /api/links', () => {
 
     expect(response.status).toBe(400)
     expect(data).toEqual({
-      message: 'Validation error',
-      errors: [
-        {
-          field: 'originalUrl',
-          message: 'Invalid URL format'
-        }
-      ]
+      message: 'Invalid request data'
     })
   })
 

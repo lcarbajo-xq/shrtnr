@@ -11,6 +11,19 @@ import { type ServiceContainer } from '../shared/service-container'
 export class ShortLinkController {
   constructor(private readonly serviceContainer: ServiceContainer) {}
 
+  private async extractSlug(
+    params: Promise<{ slug: string }>
+  ): Promise<string | NextResponse> {
+    const resolvedParams = await params
+    const validation = validateData(slugParamSchema, resolvedParams)
+
+    if (!validation.success) {
+      return validation.error
+    }
+
+    return validation.data.slug
+  }
+
   async generate(request: NextRequest): Promise<NextResponse> {
     try {
       const body = await request.json()
@@ -28,8 +41,11 @@ export class ShortLinkController {
 
       return NextResponse.json({ status: 201 }, { status: 201 })
     } catch (error) {
-      console.error('Error creating link:', error)
-      return mapErrorToHttp(error)
+      const response = mapErrorToHttp(error)
+      if (response.status >= 500) {
+        console.error('Error creating link:', error)
+      }
+      return response
     }
   }
 
@@ -42,8 +58,11 @@ export class ShortLinkController {
         { status: 200 }
       )
     } catch (error) {
-      console.error('Error fetching links:', error)
-      return mapErrorToHttp(error)
+      const response = mapErrorToHttp(error)
+      if (response.status >= 500) {
+        console.error('Error fetching links:', error)
+      }
+      return response
     }
   }
 
@@ -53,21 +72,20 @@ export class ShortLinkController {
     params: Promise<{ slug: string }>
   }): Promise<NextResponse> {
     try {
-      const resolvedParams = await params
-
-      const validation = validateData(slugParamSchema, resolvedParams)
-      if (!validation.success) {
-        return validation.error
+      const slug = await this.extractSlug(params)
+      if (slug instanceof NextResponse) {
+        return slug
       }
 
-      const link = await this.serviceContainer.shortLink.getBySlug.execute(
-        validation.data.slug
-      )
+      const link = await this.serviceContainer.shortLink.getBySlug.execute(slug)
 
       return NextResponse.json(link.toPrimitives(), { status: 200 })
     } catch (error) {
-      console.error('Error fetching link:', error)
-      return mapErrorToHttp(error)
+      const response = mapErrorToHttp(error)
+      if (response.status >= 500) {
+        console.error('Error fetching link:', error)
+      }
+      return response
     }
   }
 
@@ -77,18 +95,19 @@ export class ShortLinkController {
     params: Promise<{ slug: string }>
   }): Promise<NextResponse> {
     try {
-      const resolvedParams = await params
-
-      const validation = validateData(slugParamSchema, resolvedParams)
-      if (!validation.success) {
-        return validation.error
+      const slug = await this.extractSlug(params)
+      if (slug instanceof NextResponse) {
+        return slug
       }
 
-      await this.serviceContainer.shortLink.delete.execute(validation.data.slug)
+      await this.serviceContainer.shortLink.delete.execute(slug)
       return NextResponse.json({ status: 200 })
     } catch (error) {
-      console.error('Error deleting short link:', error)
-      return mapErrorToHttp(error)
+      const response = mapErrorToHttp(error)
+      if (response.status >= 500) {
+        console.error('Error deleting short link:', error)
+      }
+      return response
     }
   }
 
@@ -97,11 +116,9 @@ export class ShortLinkController {
     { params }: { params: Promise<{ slug: string }> }
   ): Promise<NextResponse> {
     try {
-      const resolvedParams = await params
-
-      const paramsValidation = validateData(slugParamSchema, resolvedParams)
-      if (!paramsValidation.success) {
-        return paramsValidation.error
+      const slug = await this.extractSlug(params)
+      if (slug instanceof NextResponse) {
+        return slug
       }
 
       const body = await request.json()
@@ -112,34 +129,36 @@ export class ShortLinkController {
       }
 
       await this.serviceContainer.shortLink.update.execute({
-        slugStr: paramsValidation.data.slug,
+        slugStr: slug,
         originalUrl: bodyValidation.data.originalUrl,
         title: bodyValidation.data.title
       })
 
       return NextResponse.json({ status: 200 })
     } catch (error) {
-      console.error('Error updating link:', error)
-      return mapErrorToHttp(error)
+      const response = mapErrorToHttp(error)
+      if (response.status >= 500) {
+        console.error('Error updating link:', error)
+      }
+      return response
     }
   }
 
   async resolve({ params }: { params: Promise<{ slug: string }> }) {
     try {
-      const resolvedParams = await params
-
-      const validation = validateData(slugParamSchema, resolvedParams)
-      if (!validation.success) {
-        return validation.error
+      const slug = await this.extractSlug(params)
+      if (slug instanceof NextResponse) {
+        return slug
       }
 
-      const url = await this.serviceContainer.shortLink.resolve.execute(
-        validation.data.slug
-      )
+      const url = await this.serviceContainer.shortLink.resolve.execute(slug)
       return NextResponse.json({ url }, { status: 200 })
     } catch (error) {
-      console.error('Error resolving short link:', error)
-      return mapErrorToHttp(error)
+      const response = mapErrorToHttp(error)
+      if (response.status >= 500) {
+        console.error('Error resolving short link:', error)
+      }
+      return response
     }
   }
 }

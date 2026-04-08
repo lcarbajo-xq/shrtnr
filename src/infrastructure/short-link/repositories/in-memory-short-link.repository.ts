@@ -36,10 +36,6 @@ export class InMemoryShortLinkRepository implements IShortLinkRepository {
     await Promise.resolve(this.items.set(shortLink.slug.toString(), shortLink))
   }
 
-  clear(): void {
-    this.items.clear()
-  }
-
   async update(shortLink: ShortLink): Promise<void> {
     const exists = this.items.has(shortLink.slug.toString())
 

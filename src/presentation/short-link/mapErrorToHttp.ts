@@ -35,7 +35,7 @@ export function mapErrorToHttp(error: unknown) {
     return NextResponse.json(
       {
         error: {
-          code: 'VALIDATION_ERROR',
+          code: error.code,
           message: error.message
         }
       },
