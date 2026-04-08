@@ -25,8 +25,9 @@ export class ShortLinkController {
   }
 
   async generate(request: NextRequest): Promise<NextResponse> {
+    let body: unknown
     try {
-      const body = await request.json()
+      body = await request.json()
       const validation = validateData(createShortLinkSchema, body)
       if (!validation.success) {
         return validation.error
@@ -39,11 +40,7 @@ export class ShortLinkController {
       })
       return NextResponse.json({ link }, { status: 201 })
     } catch (error) {
-      const response = mapErrorToHttp(error)
-      if (response.status >= 500) {
-        console.error('Error creating link:', error)
-      }
-      return response
+      return this.handleError('Error creating link:', error)
     }
   }
 
@@ -56,11 +53,7 @@ export class ShortLinkController {
         { status: 200 }
       )
     } catch (error) {
-      const response = mapErrorToHttp(error)
-      if (response.status >= 500) {
-        console.error('Error fetching links:', error)
-      }
-      return response
+      return this.handleError('Error fetching links:', error)
     }
   }
 
@@ -79,11 +72,7 @@ export class ShortLinkController {
 
       return NextResponse.json(link.toPrimitives(), { status: 200 })
     } catch (error) {
-      const response = mapErrorToHttp(error)
-      if (response.status >= 500) {
-        console.error('Error fetching link:', error)
-      }
-      return response
+      return this.handleError('Error fetching link by slug:', error)
     }
   }
 
@@ -101,11 +90,7 @@ export class ShortLinkController {
       await this.serviceContainer.shortLink.delete.execute(slug)
       return NextResponse.json({ status: 200 }, { status: 200 })
     } catch (error) {
-      const response = mapErrorToHttp(error)
-      if (response.status >= 500) {
-        console.error('Error deleting short link:', error)
-      }
-      return response
+      return this.handleError('Error deleting short link:', error)
     }
   }
 
@@ -113,13 +98,14 @@ export class ShortLinkController {
     request: NextRequest,
     { params }: { params: Promise<{ slug: string }> }
   ): Promise<NextResponse> {
+    let body: unknown
     try {
       const slug = await this.extractSlug(params)
       if (slug instanceof NextResponse) {
         return slug
       }
 
-      const body = await request.json()
+      body = await request.json()
 
       const bodyValidation = validateData(updateShortLinkSchema, body)
       if (!bodyValidation.success) {
@@ -134,11 +120,7 @@ export class ShortLinkController {
 
       return NextResponse.json({ status: 200 }, { status: 200 })
     } catch (error) {
-      const response = mapErrorToHttp(error)
-      if (response.status >= 500) {
-        console.error('Error updating link:', error)
-      }
-      return response
+      return this.handleError('Error updating link:', error)
     }
   }
 
@@ -152,11 +134,15 @@ export class ShortLinkController {
       const url = await this.serviceContainer.shortLink.resolve.execute(slug)
       return NextResponse.json({ url }, { status: 200 })
     } catch (error) {
-      const response = mapErrorToHttp(error)
-      if (response.status >= 500) {
-        console.error('Error resolving short link:', error)
-      }
-      return response
+      return this.handleError('Error resolving short link:', error)
     }
+  }
+
+  private handleError(message: string, error: unknown): NextResponse {
+    const response = mapErrorToHttp(error)
+    if (response.status >= 500) {
+      console.error(message, error)
+    }
+    return response
   }
 }

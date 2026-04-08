@@ -7,6 +7,17 @@ import { DomainError } from '@/domain/short-link/errors/domain-error'
 import { NextResponse } from 'next/server'
 
 export function mapErrorToHttp(error: unknown) {
+  if (error instanceof SyntaxError) {
+    return NextResponse.json(
+      {
+        error: {
+          code: 'INVALID_JSON',
+          message: 'The request body contains invalid JSON'
+        }
+      },
+      { status: 400 }
+    )
+  }
   if (error instanceof ShortLinkNotFoundError) {
     return NextResponse.json(
       {
