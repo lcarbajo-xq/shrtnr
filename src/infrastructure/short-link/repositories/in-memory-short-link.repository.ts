@@ -54,4 +54,14 @@ export class InMemoryShortLinkRepository implements IShortLinkRepository {
     await Promise.resolve(this.items.delete(slug.toString()))
     return
   }
+
+  async resolve(slug: Slug): Promise<ShortLink | null> {
+    const shortLink = this.items.get(slug.toString())
+    if (!shortLink) {
+      return null
+    }
+    shortLink.incrementClicks()
+    await this.update(shortLink)
+    return shortLink
+  }
 }

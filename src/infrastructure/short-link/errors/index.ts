@@ -5,6 +5,16 @@ export abstract class InfrastructureError extends Error {
   }
 }
 
+export class SQLiteOperationError extends InfrastructureError {
+  constructor(
+    message: string,
+    public readonly cause?: unknown
+  ) {
+    super(message)
+    this.name = 'SQLiteOperationError'
+  }
+}
+
 export class DatabaseConnectionError extends InfrastructureError {
   constructor(message = 'Database connection error') {
     super(message)

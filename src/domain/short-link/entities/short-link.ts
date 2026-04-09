@@ -21,6 +21,11 @@ export type ShortLinkPrimitives = {
   title: string | null
 }
 
+type ShortLinkMutableProperties = Pick<
+  ShortLinkProperties,
+  'clicks' | 'updatedAt' | 'title' | 'originalUrl'
+>
+
 export class ShortLink {
   private constructor(private readonly props: ShortLinkProperties) {}
 
@@ -34,6 +39,10 @@ export class ShortLink {
 
   get clicks() {
     return this.props.clicks
+  }
+
+  get updatedAt() {
+    return this.props.updatedAt
   }
 
   get slug() {
@@ -62,5 +71,17 @@ export class ShortLink {
       clicks: this.props.clicks,
       title: this.title
     }
+  }
+
+  toDomain(props: Partial<ShortLinkMutableProperties>): ShortLink {
+    return ShortLink.create({
+      ...this.props,
+      ...props
+    })
+  }
+
+  incrementClicks() {
+    this.props.clicks += 1
+    this.props.updatedAt = new Date()
   }
 }

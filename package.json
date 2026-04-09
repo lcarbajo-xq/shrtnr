@@ -9,8 +9,8 @@
     "start": "next start",
     "test": "vitest",
     "lint": "eslint",
-    "dev:db:generate": "npx drizzle-kit generate",
-    "dev:db:migrate": "npx drizzle-kit migrate",
+    "dev:db:generate": "pnpm exec drizzle-kit generate",
+    "dev:db:migrate": "pnpm exec drizzle-kit migrate",
     "dev:db:seed": "pnpm tsx src/lib/db/seed.ts"
   },
   "dependencies": {

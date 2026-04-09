@@ -4,9 +4,21 @@ import {
   UnableToGenerateUniqueSlugError
 } from '@/application/short-link/errors/application-error'
 import { DomainError } from '@/domain/short-link/errors/domain-error'
+import { SQLiteOperationError } from '@/infrastructure/short-link/errors'
 import { NextResponse } from 'next/server'
 
 export function mapErrorToHttp(error: unknown) {
+  if (error instanceof SQLiteOperationError) {
+    return NextResponse.json(
+      {
+        error: {
+          code: 'DATABASE_ERROR',
+          message: 'Internal error occurred while accessing the database'
+        }
+      },
+      { status: 500 }
+    )
+  }
   if (error instanceof SyntaxError) {
     return NextResponse.json(
       {
